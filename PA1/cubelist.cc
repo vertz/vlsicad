@@ -93,7 +93,13 @@ void CubeList::AND(int idx, boolean_t type)
     std::vector<SPCube>::iterator it;
     for (it = _lst.begin() ; it != _lst.end(); ++it)
     {
-        (**it)[idx] = type;
+    	/*
+    	# to do:
+    	# handle cases x*x' = 0 (remove the cube)
+    	
+    	(**it)[idx] = type;
+    	
+    	*/
     }
 }
 
