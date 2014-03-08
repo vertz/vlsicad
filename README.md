@@ -1,4 +1,3 @@
-vlsicad
+VLSI CAD: Logic to Layout
 =======
 
-VLSI CAD: Logic to Layout
