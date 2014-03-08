@@ -26,7 +26,10 @@ public:
     Cube();
     Cube(std::string str);
     Cube(const Cube &rhs);
+    
     ~Cube() {delete[] _arr;}
+ 
+    bool is_1() const;
  
     boolean_t   operator[](int i) const {return _arr[i];} 
     boolean_t & operator[](int i) {return _arr[i];}

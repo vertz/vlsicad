@@ -17,7 +17,6 @@ private:
         NEGFACTOR 
     };
 
-    void addCube(SPCube so);
     void Cofactor(CubeList &cl, cofactor_t type, int idx);
  
 public:
@@ -26,16 +25,23 @@ public:
     
     ~CubeList() {}
     
+    void addCube(SPCube so);
+    void AND(int idx, boolean_t type);
+    
     bool isEmpty() const;
+    bool oneCube() const;
+    
+    SPCube operator[](int i) const {return _lst[i];} 
+    CubeList & operator=(const CubeList &rhs);
     
     //CubeList Complement();
     CubeList positiveCofactor(int idx); 
     CubeList negativeCofactor(int idx);
     
-    CubeList & operator=(const CubeList &rhs);
-    
-    void AND(int idx, boolean_t type);
     void print();
 };
+
+void Complement(CubeList &cl, const Cube &c);
+CubeList Complement(const CubeList &cl);
 
 #endif // _CUBELIST_HH_

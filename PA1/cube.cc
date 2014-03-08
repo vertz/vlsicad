@@ -34,6 +34,17 @@ Cube::Cube(const Cube &rhs)
     std::copy(rhs._arr, rhs._arr + Cube::size, _arr);
 }
 
+bool Cube::is_1() const
+{
+    for(int i=0; i < Cube::size; ++i)
+    {
+        if(_arr[i] != DCARE)
+            return false;
+    }
+    
+    return true;
+}
+
 Cube & Cube::operator=(const Cube &rhs)
 {
     if (this == &rhs){

@@ -90,22 +90,31 @@ CubeList CubeList::negativeCofactor(int idx)
 
 void CubeList::AND(int idx, boolean_t type)
 {
+    boolean_t complement = (type == POS) ? NEG : POS;
+
     std::vector<SPCube>::iterator it;
     for (it = _lst.begin() ; it != _lst.end(); ++it)
     {
-    	/*
-    	# to do:
-    	# handle cases x*x' = 0 (remove the cube)
-    	
-    	(**it)[idx] = type;
-    	
-    	*/
+        if((**it)[idx] == complement)
+        {
+            _lst.erase(it);
+            --it;
+        }
+        else
+        {
+            (**it)[idx] = type;
+        }
     }
 }
 
-bool isEmpty() const
+bool CubeList::isEmpty() const
 {
     return _lst.empty();
+}
+
+bool CubeList::oneCube() const
+{
+    return _lst.size() == 1;
 }
 
 void CubeList::print()
@@ -120,14 +129,59 @@ void CubeList::print()
     std::cout << "<<<>>>" << std::endl;
 }
 
+void Complement(CubeList &cl, const Cube &c)
+{
+    SPCube so;
+    
+    for(int i=0; i < Cube::size; ++i)
+    {
+        switch(c[i])
+        {
+            case NEG:
+                so = SPCube(new Cube());
+                (*so)[i] = POS;
+                break;
+            case POS:
+                so = SPCube(new Cube());
+                (*so)[i] = NEG;
+                break;
+            default:
+                continue;    
+        }
+    
+        cl.addCube(so);
+    }
+}
+
+CubeList Complement(const CubeList &cl)
+{
+    CubeList ret;
+
+    if(cl.isEmpty())
+    {
+        SPCube so = SPCube(new Cube());
+        ret.addCube(so);
+        return ret;
+    }   
+    else if(cl.oneCube())
+    {
+        Complement(ret, *cl[0]);
+        return ret;
+    }
+    
+    return ret;
+}
+
 int main()
 {
     CubeList cl0("test.txt");
     cl0.print();
     
     CubeList cl1 = cl0.positiveCofactor(0);
-    
     cl1.print();
+    
+    CubeList cl2 = Complement(cl1);
+    cl2.print();
     
     return 0;
 }
