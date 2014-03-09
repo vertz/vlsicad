@@ -1,9 +1,10 @@
 #ifndef _CUBELIST_HH_
 #define _CUBELIST_HH_
 
-#include <exception>
+#include <algorithm>
 #include <fstream>
 #include <vector>
+#include <cmath> 
 #include "cube.hh"
 
 class CubeList
@@ -17,10 +18,11 @@ private:
         NEGFACTOR 
     };
 
-    void Cofactor(CubeList &cl, cofactor_t type, int idx);
+    void Cofactor(CubeList &cl, cofactor_t type, int idx) const;
  
 public:
     CubeList() {}
+    CubeList(const CubeList &rhs);
     CubeList(std::string fname);
     
     ~CubeList() {}
@@ -30,18 +32,24 @@ public:
     
     bool isEmpty() const;
     bool oneCube() const;
+    bool contain_1() const;
     
     SPCube operator[](int i) const {return _lst[i];} 
     CubeList & operator=(const CubeList &rhs);
     
-    //CubeList Complement();
-    CubeList positiveCofactor(int idx); 
-    CubeList negativeCofactor(int idx);
+    int size() const;
+    int most_binate() const;
     
-    void print();
+    //CubeList Complement();
+    void positiveCofactor(CubeList &cl, int idx) const; 
+    void negativeCofactor(CubeList &cl, int idx) const;
+    
+    void print() const;
 };
 
 void Complement(CubeList &cl, const Cube &c);
 CubeList Complement(const CubeList &cl);
+
+void OR(CubeList &cl, const CubeList &lhs, const CubeList &rhs);
 
 #endif // _CUBELIST_HH_
