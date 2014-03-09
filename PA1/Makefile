@@ -1,5 +1,5 @@
-CC	     =  gcc
-CXX      =  g++
+CC	=  gcc
+CX	=  g++
 
 CFLAGS       = -Wall -g
 CXXFLAGS     = -Wall -g
