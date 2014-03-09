@@ -15,7 +15,7 @@ void output_op(SPCubeList so, int idx)
     std::ofstream g(fname);
     if (g.is_open())
     {
-        g << Cube::size     << std::endl;
+        g << Cube::size   << std::endl;
         g << (*so).size() << std::endl;
         
         for(int i=0; i < (*so).size(); ++i)
