@@ -31,7 +31,7 @@ int main(int argc, char * argv[])
 {
     if(argc != 2)
     {
-        std::cerr << "usage: urp [input name]" << std::endl;
+        std::cerr << "usage: bool_calc [input name]" << std::endl;
         return -1;
     }
 
