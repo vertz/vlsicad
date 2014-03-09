@@ -55,11 +55,30 @@ Cube & Cube::operator=(const Cube &rhs)
 
 	return *this;
 }
- 
-void Cube::print() const
+
+std::string Cube::to_string() const
 {
+    std::stringstream ss, ret;
+    int count = 0;
+
     for(int i=0; i < Cube::size; ++i)
     {
-        std::cout << (i+1) << ") " << _arr[i] << std::endl;
+        switch(_arr[i])
+        {
+            case NEG:
+                ss << -(i+1) << " ";
+                ++count;
+                break;
+            case POS:
+                ss <<  (i+1) << " ";
+                ++count;
+                break;
+            default:
+                continue;    
+        }
     }
+    
+    ret << count << " " << ss.str();
+    return ret.str();
+    
 }

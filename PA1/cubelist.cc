@@ -201,18 +201,6 @@ int CubeList::most_binate() const
     return idx;
 }
 
-void CubeList::print() const 
-{
-    std::vector<SPCube>::const_iterator it;
-    for (it = _lst.begin() ; it != _lst.end(); ++it)
-    {
-        std::cout << "########" << std::endl;
-        (*it)->print();
-    }
-    
-    std::cout << "<<<>>>" << std::endl;
-}
-
 void OR(CubeList &cl, const CubeList &lhs, const CubeList &rhs)
 {
     for (int i=0 ; i < lhs.size() ; ++i)
@@ -296,13 +284,3 @@ CubeList Complement(const CubeList &cl)
     return ret;
 }
 
-int main()
-{
-    CubeList cl0("part1.pcn");
-    cl0.print();
-    
-    CubeList cl2 = Complement(cl0);
-    cl2.print();
-    
-    return 0;
-}

@@ -43,8 +43,6 @@ public:
     //CubeList Complement();
     void positiveCofactor(CubeList &cl, int idx) const; 
     void negativeCofactor(CubeList &cl, int idx) const;
-    
-    void print() const;
 };
 
 void Complement(CubeList &cl, const Cube &c);

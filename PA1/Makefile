@@ -8,8 +8,9 @@ CXXFLAGS     = -Wall -g
 CXXFLAGS       += -I boost
 
 # Src files for the urpcomp
-URPCOMP_CXXSRCS  = cubelist.cc cube.cc
-URPCOMP_OBJS     = $(URPCOMP_CXXSRCS:.cc=.o);
+URPCOMP_CXXSRCS   = urp.cc
+URPCOMP_CXXSRCS  += cubelist.cc cube.cc
+URPCOMP_OBJS      = $(URPCOMP_CXXSRCS:.cc=.o);
 
 ### Build rules for programs
 urp             : $(URPCOMP_OBJS)

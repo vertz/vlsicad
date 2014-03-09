@@ -36,7 +36,7 @@ public:
  
     Cube & operator=(const Cube &rhs);
  
-    void print() const;
+    std::string to_string() const;
 };
 
 //# Boost Shared Pointer for Cube
