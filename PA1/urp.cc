@@ -13,8 +13,6 @@ int main(int argc, char * argv[])
     CubeList cl(argv[1]);
     CubeList comp_cl = Complement(cl);
     
-    ;
-    
     std::ofstream f("sol.pcn");
     if (f.is_open())
     {
