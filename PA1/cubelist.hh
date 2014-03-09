@@ -7,6 +7,8 @@
 #include <cmath> 
 #include "cube.hh"
 
+#include <boost/shared_ptr.hpp>
+
 class CubeList
 {
 private:
@@ -46,8 +48,12 @@ public:
 };
 
 void Complement(CubeList &cl, const Cube &c);
-CubeList Complement(const CubeList &cl);
+void Complement(CubeList &cl, const CubeList &rhs);
 
 void OR(CubeList &cl, const CubeList &lhs, const CubeList &rhs);
+void AND(CubeList &cl, const CubeList &lhs, const CubeList &rhs);
+
+//# Boost Shared Pointer for CubeList
+typedef boost::shared_ptr<CubeList> SPCubeList;
 
 #endif // _CUBELIST_HH_

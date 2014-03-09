@@ -214,6 +214,17 @@ void OR(CubeList &cl, const CubeList &lhs, const CubeList &rhs)
     }
 }
 
+void AND(CubeList &cl, const CubeList &lhs, const CubeList &rhs)
+{
+    CubeList lhs_comp, rhs_comp, or_comp;
+    
+    Complement(lhs_comp, lhs);
+    Complement(rhs_comp, rhs);
+    
+    OR(or_comp, lhs_comp, rhs_comp);
+    Complement(cl, or_comp);
+}
+
 void Complement(CubeList &cl, const Cube &c)
 {
     SPCube so;
@@ -238,49 +249,46 @@ void Complement(CubeList &cl, const Cube &c)
     }
 }
 
-CubeList Complement(const CubeList &cl)
+void Complement(CubeList &cl, const CubeList &rhs)
 {
-    CubeList ret;
-
-    if(cl.oneCube())
+    if(rhs.oneCube())
     {
-        Complement(ret, *cl[0]);
-        return ret;
+        Complement(cl, *rhs[0]);
+        return;
     }   
-    else if(cl.isEmpty())
+    else if(rhs.isEmpty())
     {
         // empty represents the Boolean equation “0”
         // the complement is clearly “1”
         // new cube initialized to [11 11 ... 11]
         // represents "1"
         SPCube so = SPCube(new Cube());
-        ret.addCube(so);
-        return ret;
+        cl.addCube(so);
+        return;
     }
-    else if(cl.contain_1())
+    else if(rhs.contain_1())
     {
         // (x1 + ... + 1 + .. + xn) = 1
         // F = 1 --> F' = 0
         // return an empty cubeList
-        return ret;
+        return;
     }
     
     // most binate variable for splitting
-    int idx = cl.most_binate();
+    int idx = rhs.most_binate();
     
     CubeList pos_cl, neg_cl;
+    CubeList p_comp, n_comp;
     
-    cl.positiveCofactor(pos_cl, idx);
-    CubeList p_comp = Complement(pos_cl);
+    rhs.positiveCofactor(pos_cl, idx);
+    Complement(p_comp, pos_cl);
     
-    cl.negativeCofactor(neg_cl, idx);
-    CubeList n_comp = Complement(neg_cl);
+    rhs.negativeCofactor(neg_cl, idx);
+    Complement(n_comp, neg_cl);
     
     p_comp.AND(idx, POS);
     n_comp.AND(idx, NEG);
     
-    OR(ret, p_comp, n_comp);
-    
-    return ret;
+    OR(cl, p_comp, n_comp);
 }
 
