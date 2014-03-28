@@ -8,6 +8,12 @@ adder 1 c1 s0 a0 b0 cin
 adder 1 c2 s1 a1 b1 c1
 adder 1 c3 s2 a2 b2 c2
 adder 1 c4 s3 a3 b3 c3
+
+eval q1 a0^b0
+eval q2 a1^b1
+eval q3 a2^b2
+eval q4 a3^b3
+
 mux 4 Select q1 q2 q3 q4 d[15..0]
 eval cout !Select&c4 + Select&cin
 #
@@ -23,10 +29,6 @@ quantify u ForallZ Z a[3..0] b[3..0] cin
 satisfy ForallZ
 #
 #
-eval q1 a0^b0
-eval q2 a1^b1
-eval q3 a2^b2
-eval q4 a3^b3
 
 eval f1 q1+q2+q3+q4
 eval f2 q1&q2&q3&q4
