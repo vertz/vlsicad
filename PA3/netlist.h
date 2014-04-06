@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <vector>
 #include <cmath>
+#include <queue>
 #include <map>
 
 #include "netpart.h"
@@ -17,9 +18,6 @@
 class NetList
 {
 private:
-    std::vector<std::vector<int> > nets_g; // gates in net
-    std::vector<std::vector<int> > nets_p; // pads  in net
-    
     std::map<int, SPGate> gates_map;
     std::vector<SPGate> gates;
     
@@ -28,7 +26,7 @@ private:
     
     SPNetPart _net;
  
-    void init_gates();
+    void init_gates(std::vector<std::vector<int> > &nets_g, std::vector<std::vector<int> > &nets_p);
     void sort_gates(NetPart &part, bool horizontal);
     
     void propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y); 

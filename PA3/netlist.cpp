@@ -10,6 +10,9 @@ NetList::NetList(std::string fname)
         return;
     }
     
+    std::vector<std::vector<int> > nets_g;
+    std::vector<std::vector<int> > nets_p;
+    
     int ngates, nnets, nnc;
     int gateID, idx, n=0;
     SPNetPart sp = SPNetPart(new NetPart());
@@ -76,10 +79,11 @@ NetList::NetList(std::string fname)
     _net = sp;
     
     f.close();
-    init_gates();
+    
+    init_gates(nets_g, nets_p);
 }
 
-void NetList::init_gates()
+void NetList::init_gates(std::vector<std::vector<int> > &nets_g, std::vector<std::vector<int> > &nets_p)
 {
     std::vector<int>::iterator nets_it;
     std::vector<int>::iterator it;
@@ -177,7 +181,6 @@ void NetList::quadratic_placement_iter(NetPart &part)
     valarray<double> by(sz);
     
     SPGate so, so_neighbor;
-    int gateID;
     int n_idx;
     
     double prop_x, prop_y;
@@ -188,7 +191,6 @@ void NetList::quadratic_placement_iter(NetPart &part)
     for(int idx = part.s_idx; idx < part.e_idx; ++idx)
     {
         so = gates[idx];
-        gateID = so->gateID;
         
         a_weight = 0.0;
         pads_x   = 0.0;
@@ -268,24 +270,22 @@ void NetList::quadratic_placement(int depth)
 {
     int sz = gates.size();
     int curr_depth = 0;
+    int bound = 1, i;
     bool horizontal;
     
-    std::vector<SPNetPart>::iterator it;
-    std::vector<SPNetPart> curr_parts;
-    std::vector<SPNetPart> next_parts;
-    next_parts.push_back(_net);
+    std::queue<SPNetPart> _parts;
+    _parts.push(_net);
     
     SPNetPart spa, spb;
     SPNetPart sp;
     
     while(curr_depth < depth)
     {
-        curr_parts = next_parts;
-        next_parts.clear();
-        
-        for(it = curr_parts.begin() ; it != curr_parts.end(); ++it)
+        i = 0;
+    
+        while(!_parts.empty() && i++ < bound)
         {
-            sp = *it;
+            sp = _parts.front();
             quadratic_placement_iter(*sp);
             
             if(curr_depth < depth)
@@ -295,15 +295,21 @@ void NetList::quadratic_placement(int depth)
                 
                 spa = SPNetPart(new NetPart());
                 spb = SPNetPart(new NetPart());
-        
-                sp->split_horizontal(*spa, *spb);
                 
-                next_parts.push_back(spa);
-                next_parts.push_back(spb);
+                if(horizontal)
+                    sp->split_horizontal(*spa, *spb);
+                else
+                    sp->split_vertical(*spa, *spb);    
+                
+                _parts.pop();
+                _parts.push(spa);
+                _parts.push(spb);
             }
         }
         
         std::cout << "fin depth " << curr_depth << std::endl;
+        
+        bound *= 2;
         ++curr_depth;
     }
     
