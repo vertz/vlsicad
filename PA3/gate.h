@@ -13,6 +13,7 @@ public:
     double x, y;
     
     std::vector<int> conn_gates;
+    std::vector<int> conn_pads;
     std::vector<int> nets;
 
     Gate(int _id) : gateID(_id), x(0.0), y(0.0) {}

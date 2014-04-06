@@ -67,7 +67,7 @@ void NetList::init_gates()
 {
     std::vector<int>::iterator nets_it;
     std::vector<int>::iterator it;
-    std::vector<int> gate_lst;
+    std::vector<int> _lst;
     int gateID;
 
     SPGate so;
@@ -78,13 +78,19 @@ void NetList::init_gates()
         
         for (nets_it = so->nets.begin() ; nets_it != so->nets.end(); ++nets_it)
         {
-            gate_lst = nets_g[*nets_it];
-            for (it = gate_lst.begin() ; it != gate_lst.end(); ++it)
+            _lst = nets_g[*nets_it];
+            for (it = _lst.begin() ; it != _lst.end(); ++it)
             {
                 if(*it == gateID)
                     continue;
                     
                 so->conn_gates.push_back(*it);   
+            }
+            
+            _lst = nets_p[*nets_it];
+            for (it = _lst.begin() ; it != _lst.end(); ++it)
+            {
+                so->conn_pads.push_back(*it);
             }
         }
         
@@ -116,10 +122,6 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
     valarray<double> bx(sz);
     valarray<double> by(sz);
     
-    std::vector<int>::iterator nets_it;
-    std::vector<int>::iterator it;
-    std::vector<int> gate_lst, pad_lst;
-    
     SPGate so, so_neighbor;
     int gateID;
     int n_idx;
@@ -130,6 +132,7 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
     std::vector<SPGate>::iterator it_pins_unique;
     std::vector<SPGate>::iterator it_pins;
     std::vector<SPGate> psuedo_pins;
+    std::vector<int>::iterator it;
     
     for(int idx = s_idx; idx < e_idx; ++idx)
     {
@@ -160,20 +163,16 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
             a_weight += edge_weight;
         }
         
-        for (nets_it = so->nets.begin() ; nets_it != so->nets.end(); ++nets_it)
-        {
-            pad_lst = nets_p[*nets_it];
-            for (it = pad_lst.begin() ; it != pad_lst.end(); ++it)
-            {
-                a_weight += edge_weight;
+        for(it = so->conn_pads.begin() ; it != so->conn_pads.end(); ++it)
+        { 
+            a_weight += edge_weight;
                 
-                if((gt && pinX[*it] > x_val) || (!gt && pinX[*it] < x_val))
-                    pads_x += pinX[*it];
-                else
-                    pads_x += x_val;   
+            if((gt && pinX[*it] > x_val) || (!gt && pinX[*it] < x_val))
+                pads_x += pinX[*it];
+            else
+                pads_x += x_val;   
                     
-                pads_y += pinY[*it];
-            }
+            pads_y += pinY[*it];
         }
         
         it_pins_unique = std::unique (psuedo_pins.begin(), psuedo_pins.end());
@@ -253,9 +252,15 @@ void NetList::quadratic_placement(int depth)
     }
 }
 
-int main()
+int main(int argc, char * argv[])
 {
-    NetList nl("test.txt");
+    if(argc != 2)
+    {
+        std::cerr << "usage: 3qp [input name]" << std::endl;
+        return -1;
+    }
+
+    NetList nl(argv[1]);
     nl.quadratic_placement();
 
     return 0;
