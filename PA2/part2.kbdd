@@ -9,7 +9,7 @@ eval Y a&c&!e&g&h + a&b&!h + d&e&!f&!g + !b&!c&d&e + a&!e&h + !c&!g
 # YOU DO THIS:  Define one programmable inverter block  [8 points]
 #               (Signal input = pri_in   Output = PRI
 #                Inversion control signal = pri_N)
-eval PRI pri_N&!pri_in + !pri_N&pri_in
+eval PRI pri_N^pri_in
 #
 # YOU DO THIS:  Define Selection Logic [8 points]
 #              (3 select inputs, 8 PRI control outputs Ni)
@@ -30,20 +30,20 @@ eval N7 S2&S1&S0
 #       Embed each PRI in equation for gate output it inverts.
 #
 eval t1 !b&!c
-eval w0 N0&!(!f&!g) + !N0&(!f&!g)
+eval w0 N0^(!f&!g)
 eval t2 !e
-eval w1 N1&!(!h) + !N1&(!h)
-eval w2 N2&!(!c&!g) + !N2&(!c&!g)
-eval w3 N3&!(t1+w0) + !N3&(t1+w0)
+eval w1 N1^(!h)
+eval w2 N2^(!c&!g)
+eval w3 N3^(t1+w0)
 eval t3 h&t2
 eval t4 b&w1
-eval w4 N4&!(t3+t4) + !N4&(t3+t4)
+eval w4 N4^(t3+t4)
 eval t5 d&w3
 eval t6 !w4
-eval w5 N5&!(e&t5) + !N5&(e&t5)
-eval w6 N6&!(a&t6) + !N6&(a&t6)
+eval w5 N5^(e&t5)
+eval w6 N6^(a&t6)
 eval t7 !w2&!w6
-eval w7 N7&!(!t7) + !N7&(!t7)
+eval w7 N7^(!t7)
 eval Y_repair w5+w7
 #
 #  Do EXNOR of the correct Y function and your Y_repair   [16 points]
