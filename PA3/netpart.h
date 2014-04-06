@@ -9,7 +9,6 @@ private:
     void split_idx(NetPart &pa, NetPart &pb);
 
 public:
-    int    partID;
     int    s_idx, e_idx;
     double x_min, x_max;
     double y_min, y_max;

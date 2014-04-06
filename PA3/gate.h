@@ -9,7 +9,6 @@ class Gate
 {
 public:
     int gateID;
-    int partID;
     int idx;
     double x, y;
     

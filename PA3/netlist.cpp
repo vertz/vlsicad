@@ -25,7 +25,6 @@ NetList::NetList(std::string fname)
         gateID--; // i want them to start from 0 and not from 1
         
         so = SPGate(new Gate(gateID));
-        so->partID = 0;
         so->idx = n++;
         
         gates_map[gateID] = so;
@@ -72,7 +71,6 @@ NetList::NetList(std::string fname)
             sp->y_min = y;  
     }
     
-    sp->partID = 0;
     sp->s_idx  = 0;
     sp->e_idx  = gates.size();
     parts.push_back(sp);
@@ -117,15 +115,52 @@ void NetList::init_gates()
     }
 }
 
-void NetList::sort_gates()
+void NetList::sort_gates(NetPart &part, bool horizontal)
 {
-    std::sort(gates.begin(), gates.end(), comareTo_horizontal);
+    if(horizontal)
+    {
+        std::sort(gates.begin() + part.s_idx, gates.begin() + part.e_idx, comareTo_horizontal);
+    }
+    else
+    {
+        std::sort(gates.begin() + part.s_idx, gates.begin() + part.e_idx, comareTo_vertical);
+    }
+    
     
     SPGate so;
-    for(int idx=0; idx < gates.size(); ++idx)
+    for(int idx=part.s_idx; idx < part.e_idx; ++idx)
     {
         so = gates[idx];
         so->idx = idx;
+    }
+}
+
+void NetList::propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y)
+{
+    if(curr_x < part.x_min)
+    {
+        x = part.x_min;
+    }
+    else if(curr_x > part.x_max) 
+    {
+        x = part.x_max;
+    }
+    else
+    {
+        x = curr_x;
+    }
+    
+    if(curr_y < part.y_min)
+    {
+        y = part.y_min;
+    }
+    else if(curr_y > part.y_max) 
+    {
+        y = part.y_max;
+    }
+    else
+    {
+        y = curr_y;
     }
 }
 
@@ -137,20 +172,18 @@ void NetList::quadratic_placement_iter(NetPart &part, double x_val, bool gt)
     size_t sz = part.e_idx - part.s_idx;
     int nnz = 0;
     
+    std::vector<int>::iterator it;
     valarray<double> bx(sz);
     valarray<double> by(sz);
     
     SPGate so, so_neighbor;
     int gateID;
     int n_idx;
+    
+    double prop_x, prop_y;
     double a_weight;
     double pads_x;
     double pads_y;
-    
-    std::vector<SPGate>::iterator it_pins_unique;
-    std::vector<SPGate>::iterator it_pins;
-    std::vector<SPGate> psuedo_pins;
-    std::vector<int>::iterator it;
     
     for(int idx = part.s_idx; idx < part.e_idx; ++idx)
     {
@@ -161,45 +194,35 @@ void NetList::quadratic_placement_iter(NetPart &part, double x_val, bool gt)
         pads_x   = 0.0;
         pads_y   = 0.0;
         
-        psuedo_pins.clear();
-        
         for(it = so->conn_gates.begin() ; it != so->conn_gates.end(); ++it)
         { 
             so_neighbor = gates_map[*it];
             n_idx = so_neighbor->idx;
+            
             if(n_idx < part.s_idx || n_idx >= part.e_idx)
             {
-                psuedo_pins.push_back(so_neighbor);
-                continue;
+                propagate_gate(part, so_neighbor->x, so_neighbor->y, prop_x, prop_y);
+                pads_x += prop_x;  
+                pads_y += prop_y;
+            }
+            else
+            {
+                R.push_back(idx - part.s_idx);
+                C.push_back(n_idx - part.s_idx);
+                V.push_back(-edge_weight);
+                ++nnz; 
             }    
-                   
-            R.push_back(idx - part.s_idx);
-            C.push_back(n_idx - part.s_idx);
-            V.push_back(-edge_weight);
-            ++nnz;
-                
+            
             a_weight += edge_weight;
         }
         
         for(it = so->conn_pads.begin() ; it != so->conn_pads.end(); ++it)
         { 
+            propagate_gate(part, pinX[*it], pinY[*it], prop_x, prop_y);
+            pads_x += prop_x;  
+            pads_y += prop_y;
+            
             a_weight += edge_weight;
-                
-            if((gt && pinX[*it] > x_val) || (!gt && pinX[*it] < x_val))
-                pads_x += pinX[*it];
-            else
-                pads_x += x_val;   
-                    
-            pads_y += pinY[*it];
-        }
-        
-        it_pins_unique = std::unique (psuedo_pins.begin(), psuedo_pins.end());
-        for (it_pins = psuedo_pins.begin() ; it_pins != it_pins_unique; ++it_pins)
-        {
-            a_weight += edge_weight;
-                
-            pads_x += x_val;
-            pads_y += (*it_pins)->y;
         }
         
         if(a_weight != 0)
@@ -246,16 +269,18 @@ void NetList::quadratic_placement_iter(NetPart &part, double x_val, bool gt)
 void NetList::quadratic_placement(int depth)
 {
     int sz = gates.size();
+    int cp = 1;
+    
     SPNetPart spa, spb;
     SPNetPart sp = parts.front();
     
     quadratic_placement_iter(*sp, 100);
-    sort_gates();
+    sort_gates(*sp, true);
     
     spa = SPNetPart(new NetPart());
     spb = SPNetPart(new NetPart());
-    sp->split_horizontal(*spa, *spb);
     
+    sp->split_horizontal(*spa, *spb);
     //parts.erase(parts.begin());
     
     quadratic_placement_iter(*spa, 50.0, false);

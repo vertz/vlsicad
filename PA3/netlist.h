@@ -28,7 +28,9 @@ private:
     std::vector<SPNetPart> parts;
  
     void init_gates();
-    void sort_gates();
+    void sort_gates(NetPart &part, bool horizontal);
+    
+    void propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y); 
     void quadratic_placement_iter(NetPart &part, double x_val, bool gt = false);
     
 public:
