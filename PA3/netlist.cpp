@@ -307,8 +307,6 @@ void NetList::quadratic_placement(int depth)
         ++curr_depth;
     }
     
-    
-    
     std::ofstream g("test.out");
     if (g.is_open())
     {
