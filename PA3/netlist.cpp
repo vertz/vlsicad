@@ -279,7 +279,7 @@ void NetList::quadratic_placement(int depth)
     SPNetPart spa, spb;
     SPNetPart sp;
     
-    while(curr_depth < depth)
+    while(curr_depth <= depth)
     {
         i = 0;
     
@@ -288,7 +288,7 @@ void NetList::quadratic_placement(int depth)
             sp = _parts.front();
             quadratic_placement_iter(*sp);
             
-            if(curr_depth < depth)
+            if(curr_depth <= depth)
             {
                 horizontal = (curr_depth%2 == 0);
                 sort_gates(*sp, horizontal);
@@ -307,7 +307,7 @@ void NetList::quadratic_placement(int depth)
             }
         }
         
-        std::cout << "fin depth " << curr_depth << std::endl;
+        std::cout << "fin depth " << curr_depth << " || " << bound << " parts" << std::endl;
         
         bound *= 2;
         ++curr_depth;
@@ -331,7 +331,7 @@ int main(int argc, char * argv[])
 {
     if(argc != 3)
     {
-        std::cerr << "usage: qp [input name] [depth]" << std::endl;
+        std::cerr << "usage: qp [input name] [number of cuts]" << std::endl;
         return -1;
     }
 
