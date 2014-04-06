@@ -9,6 +9,7 @@
 #include <cmath>
 #include <map>
 
+#include "netpart.h"
 #include "solver.h"
 #include "gate.h"
 
@@ -23,10 +24,12 @@ private:
     
     valarray<int> pinX;
     valarray<int> pinY;
+    
+    std::vector<SPNetPart> parts;
  
     void init_gates();
     void sort_gates();
-    void quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool gt = false);
+    void quadratic_placement_iter(NetPart &part, double x_val, bool gt = false);
     
 public:
     NetList() {}

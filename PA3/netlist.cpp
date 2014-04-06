@@ -12,6 +12,7 @@ NetList::NetList(std::string fname)
     
     int ngates, nnets, nnc;
     int gateID, idx, n=0;
+    SPNetPart sp = SPNetPart(new NetPart());
     SPGate so;
     
     f >> ngates >> nnets;
@@ -24,6 +25,7 @@ NetList::NetList(std::string fname)
         gateID--; // i want them to start from 0 and not from 1
         
         so = SPGate(new Gate(gateID));
+        so->partID = 0;
         so->idx = n++;
         
         gates_map[gateID] = so;
@@ -57,7 +59,23 @@ NetList::NetList(std::string fname)
         pinY[padID] = y;
         
         nets_p[idx].push_back(padID);
+        
+        // init netpart
+        if(sp->x_max < x)
+            sp->x_max = x;
+        else if(sp->x_min <0 || sp->x_min > x) 
+            sp->x_min = x;  
+            
+        if(sp->y_max < y)
+            sp->y_max = y;
+        else if(sp->y_min <0 || sp->y_min > y) 
+            sp->y_min = y;  
     }
+    
+    sp->partID = 0;
+    sp->s_idx  = 0;
+    sp->e_idx  = gates.size();
+    parts.push_back(sp);
     
     f.close();
     init_gates();
@@ -111,12 +129,12 @@ void NetList::sort_gates()
     }
 }
 
-void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool gt)
+void NetList::quadratic_placement_iter(NetPart &part, double x_val, bool gt)
 {
     std::vector<int> R, C;
     std::vector<double> V;
     
-    size_t sz = e_idx - s_idx;
+    size_t sz = part.e_idx - part.s_idx;
     int nnz = 0;
     
     valarray<double> bx(sz);
@@ -134,7 +152,7 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
     std::vector<SPGate> psuedo_pins;
     std::vector<int>::iterator it;
     
-    for(int idx = s_idx; idx < e_idx; ++idx)
+    for(int idx = part.s_idx; idx < part.e_idx; ++idx)
     {
         so = gates[idx];
         gateID = so->gateID;
@@ -149,14 +167,14 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
         { 
             so_neighbor = gates_map[*it];
             n_idx = so_neighbor->idx;
-            if(n_idx < s_idx || n_idx >= e_idx)
+            if(n_idx < part.s_idx || n_idx >= part.e_idx)
             {
                 psuedo_pins.push_back(so_neighbor);
                 continue;
             }    
                    
-            R.push_back(idx - s_idx);
-            C.push_back(n_idx - s_idx);
+            R.push_back(idx - part.s_idx);
+            C.push_back(n_idx - part.s_idx);
             V.push_back(-edge_weight);
             ++nnz;
                 
@@ -186,13 +204,13 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
         
         if(a_weight != 0)
         {
-            R.push_back(idx - s_idx);
-            C.push_back(idx - s_idx);
+            R.push_back(idx - part.s_idx);
+            C.push_back(idx - part.s_idx);
             V.push_back(a_weight);
             ++nnz;
             
-            bx[idx - s_idx] = pads_x; 
-            by[idx - s_idx] = pads_y;
+            bx[idx - part.s_idx] = pads_x; 
+            by[idx - part.s_idx] = pads_y;
         }
     }
     
@@ -214,12 +232,12 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
     A.solve(bx, x);
     A.solve(by, y);
     
-    for(int idx=s_idx; idx < e_idx; ++idx)
+    for(int idx=part.s_idx; idx < part.e_idx; ++idx)
     {
         so = gates[idx];
         
-        so->x = x[idx - s_idx];
-        so->y = y[idx - s_idx];
+        so->x = x[idx - part.s_idx];
+        so->y = y[idx - part.s_idx];
     }
     
     std::cout << "fin" << std::endl;
@@ -228,15 +246,20 @@ void NetList::quadratic_placement_iter(int s_idx, int e_idx, double x_val, bool 
 void NetList::quadratic_placement(int depth)
 {
     int sz = gates.size();
+    SPNetPart spa, spb;
+    SPNetPart sp = parts.front();
     
-    quadratic_placement_iter(0, sz, 100);
+    quadratic_placement_iter(*sp, 100);
     sort_gates();
     
-    int parts = 2;
-    int elems = sz / 2;
+    spa = SPNetPart(new NetPart());
+    spb = SPNetPart(new NetPart());
+    sp->split_horizontal(*spa, *spb);
     
-    quadratic_placement_iter(0 , elems, 50.0, false);
-    quadratic_placement_iter(elems, sz, 50.0, true );
+    //parts.erase(parts.begin());
+    
+    quadratic_placement_iter(*spa, 50.0, false);
+    quadratic_placement_iter(*spb, 50.0, true );
     
     std::ofstream g("test.out");
     if (g.is_open())

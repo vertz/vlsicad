@@ -3,13 +3,13 @@ CX	=  g++
 
 CFLAGS       = -Wall -g
 CXXFLAGS     = -Wall -g
-CXXFLAGS    += -std=c++0x
+#CXXFLAGS    += -std=c++0x
 
 # flags for boost
 CXXFLAGS       += -I boost
 
 # Src files
-QP_CXXSRCS   = netlist.cpp solver.cpp
+QP_CXXSRCS   = netlist.cpp netpart.cpp solver.cpp
 QP_OBJS      = $(QP_CXXSRCS:.cc=.o);
 
 #tell make that "clean" is not a file name!
