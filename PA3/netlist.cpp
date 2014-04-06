@@ -73,7 +73,7 @@ NetList::NetList(std::string fname)
     
     sp->s_idx  = 0;
     sp->e_idx  = gates.size();
-    parts.push_back(sp);
+    _net = sp;
     
     f.close();
     init_gates();
@@ -164,7 +164,7 @@ void NetList::propagate_gate(NetPart &part, double curr_x, double curr_y, double
     }
 }
 
-void NetList::quadratic_placement_iter(NetPart &part, double x_val, bool gt)
+void NetList::quadratic_placement_iter(NetPart &part)
 {
     std::vector<int> R, C;
     std::vector<double> V;
@@ -262,29 +262,52 @@ void NetList::quadratic_placement_iter(NetPart &part, double x_val, bool gt)
         so->x = x[idx - part.s_idx];
         so->y = y[idx - part.s_idx];
     }
-    
-    std::cout << "fin" << std::endl;
 }
 
 void NetList::quadratic_placement(int depth)
 {
     int sz = gates.size();
-    int cp = 1;
+    int curr_depth = 0;
+    bool horizontal;
+    
+    std::vector<SPNetPart>::iterator it;
+    std::vector<SPNetPart> curr_parts;
+    std::vector<SPNetPart> next_parts;
+    next_parts.push_back(_net);
     
     SPNetPart spa, spb;
-    SPNetPart sp = parts.front();
+    SPNetPart sp;
     
-    quadratic_placement_iter(*sp, 100);
-    sort_gates(*sp, true);
+    while(curr_depth < depth)
+    {
+        curr_parts = next_parts;
+        next_parts.clear();
+        
+        for(it = curr_parts.begin() ; it != curr_parts.end(); ++it)
+        {
+            sp = *it;
+            quadratic_placement_iter(*sp);
+            
+            if(curr_depth < depth)
+            {
+                horizontal = (curr_depth%2 == 0);
+                sort_gates(*sp, horizontal);
+                
+                spa = SPNetPart(new NetPart());
+                spb = SPNetPart(new NetPart());
+        
+                sp->split_horizontal(*spa, *spb);
+                
+                next_parts.push_back(spa);
+                next_parts.push_back(spb);
+            }
+        }
+        
+        std::cout << "fin depth " << curr_depth << std::endl;
+        ++curr_depth;
+    }
     
-    spa = SPNetPart(new NetPart());
-    spb = SPNetPart(new NetPart());
     
-    sp->split_horizontal(*spa, *spb);
-    //parts.erase(parts.begin());
-    
-    quadratic_placement_iter(*spa, 50.0, false);
-    quadratic_placement_iter(*spb, 50.0, true );
     
     std::ofstream g("test.out");
     if (g.is_open())
@@ -302,14 +325,15 @@ void NetList::quadratic_placement(int depth)
 
 int main(int argc, char * argv[])
 {
-    if(argc != 2)
+    if(argc != 3)
     {
-        std::cerr << "usage: 3qp [input name]" << std::endl;
+        std::cerr << "usage: qp [input name] [depth]" << std::endl;
         return -1;
     }
 
     NetList nl(argv[1]);
-    nl.quadratic_placement();
+    nl.quadratic_placement(atoi(argv[2]));
 
     return 0;
 }
+

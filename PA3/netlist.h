@@ -5,6 +5,7 @@
 #include <iostream> 
 #include <valarray>
 #include <fstream>
+#include <cstdlib>
 #include <vector>
 #include <cmath>
 #include <map>
@@ -25,13 +26,13 @@ private:
     valarray<int> pinX;
     valarray<int> pinY;
     
-    std::vector<SPNetPart> parts;
+    SPNetPart _net;
  
     void init_gates();
     void sort_gates(NetPart &part, bool horizontal);
     
     void propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y); 
-    void quadratic_placement_iter(NetPart &part, double x_val, bool gt = false);
+    void quadratic_placement_iter(NetPart &part);
     
 public:
     NetList() {}

@@ -13,12 +13,12 @@ QP_CXXSRCS   = netlist.cpp netpart.cpp solver.cpp
 QP_OBJS      = $(QP_CXXSRCS:.cc=.o);
 
 #tell make that "clean" is not a file name!
-.PHONY: clean all 3qp 
+.PHONY: clean all qp 
 
-all: 3qp 
+all: qp 
 
 ### Build rules for programs
-3qp             : $(QP_OBJS)
+qp              : $(QP_OBJS)
 	            $(CXX) -g -o $@ $^ $(LDFLAGS)
 
 # C compilation implicit rule 
