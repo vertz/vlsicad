@@ -114,8 +114,7 @@ void NetList::init_gates(std::vector<std::vector<int> > &nets_g, std::vector<std
             }
         }
         
-        it = std::unique(so->conn_gates.begin(), so->conn_gates.end());
-        so->conn_gates.resize(std::distance(so->conn_gates.begin(), it));
+        so->init_gate();
     }
 }
 
@@ -176,6 +175,7 @@ void NetList::quadratic_placement_iter(NetPart &part)
     size_t sz = part.e_idx - part.s_idx;
     int nnz = 0;
     
+    std::vector<int>::iterator weight_it;
     std::vector<int>::iterator it;
     valarray<double> bx(sz);
     valarray<double> by(sz);
@@ -196,7 +196,8 @@ void NetList::quadratic_placement_iter(NetPart &part)
         pads_x   = 0.0;
         pads_y   = 0.0;
         
-        for(it = so->conn_gates.begin() ; it != so->conn_gates.end(); ++it)
+        for(it = so->conn_gates.begin() , weight_it = so->gates_weight.begin() ; 
+            it != so->conn_gates.end(); ++it, ++weight_it)
         { 
             so_neighbor = gates_map[*it];
             n_idx = so_neighbor->idx;
@@ -204,18 +205,18 @@ void NetList::quadratic_placement_iter(NetPart &part)
             if(n_idx < part.s_idx || n_idx >= part.e_idx)
             {
                 propagate_gate(part, so_neighbor->x, so_neighbor->y, prop_x, prop_y);
-                pads_x += prop_x;  
-                pads_y += prop_y;
+                pads_x += (*weight_it)*prop_x;  
+                pads_y += (*weight_it)*prop_y;
             }
             else
             {
                 R.push_back(idx - part.s_idx);
                 C.push_back(n_idx - part.s_idx);
-                V.push_back(-edge_weight);
+                V.push_back(-(*weight_it));
                 ++nnz; 
             }    
             
-            a_weight += edge_weight;
+            a_weight += *weight_it;
         }
         
         for(it = so->conn_pads.begin() ; it != so->conn_pads.end(); ++it)

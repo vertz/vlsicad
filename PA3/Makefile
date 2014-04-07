@@ -9,7 +9,8 @@ CXXFLAGS     = -Wall -g
 CXXFLAGS       += -I boost
 
 # Src files
-QP_CXXSRCS   = netlist.cpp netpart.cpp solver.cpp
+QP_CXXSRCS   = netlist.cpp 
+QP_CXXSRCS  += gate.cpp netpart.cpp solver.cpp
 QP_OBJS      = $(QP_CXXSRCS:.cc=.o);
 
 #tell make that "clean" is not a file name!

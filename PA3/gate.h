@@ -12,35 +12,21 @@ public:
     int idx;
     double x, y;
     
+    std::vector<int> gates_weight;
     std::vector<int> conn_gates;
     std::vector<int> conn_pads;
     std::vector<int> nets;
-
+    
     Gate(int _id) : gateID(_id), x(0.0), y(0.0) {}
     ~Gate() {}
+    
+    void init_gate();
 };
 
 //# Boost Shared Pointer for Gate
 typedef boost::shared_ptr<Gate> SPGate;
 
-bool comareTo_horizontal(SPGate lhs, SPGate rhs)
-{
-    if(lhs->x < rhs->x)
-        return true;
-    else if(lhs->x == rhs->x)
-        return lhs->y < rhs->y;
-        
-    return  false;
-}
-
-bool comareTo_vertical(SPGate lhs, SPGate rhs)
-{
-    if(lhs->y < rhs->y)
-        return true;
-    else if(lhs->y == rhs->y)
-        return lhs->x < rhs->x;
-        
-    return  false;
-}
+bool comareTo_horizontal(SPGate lhs, SPGate rhs);
+bool comareTo_vertical(SPGate lhs, SPGate rhs);
 
 #endif // _GATE_HH_
