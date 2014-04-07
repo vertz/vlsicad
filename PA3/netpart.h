@@ -12,6 +12,7 @@ public:
     int    s_idx, e_idx;
     double x_min, x_max;
     double y_min, y_max;
+    bool horizontal;
 
     NetPart() : x_min(-1), y_min(-1) {}
     ~NetPart() {}

@@ -15,6 +15,7 @@ NetList::NetList(std::string fname)
     
     int ngates, nnets, nnc;
     int gateID, idx, n=0;
+    
     SPNetPart sp = SPNetPart(new NetPart());
     SPGate so;
     
@@ -74,8 +75,8 @@ NetList::NetList(std::string fname)
             sp->y_min = y;  
     }
     
-    sp->s_idx  = 0;
-    sp->e_idx  = gates.size();
+    sp->s_idx = 0;
+    sp->e_idx = gates.size();
     _net = sp;
     
     f.close();
@@ -91,7 +92,7 @@ void NetList::init_gates(std::vector<std::vector<int> > &nets_g, std::vector<std
     int gateID;
 
     SPGate so;
-    for(int idx=0; idx < gates.size(); ++idx)
+    for(unsigned idx=0; idx < gates.size(); ++idx)
     {
         so = gates[idx];
         gateID = so->gateID;
@@ -138,7 +139,7 @@ void NetList::sort_gates(NetPart &part, bool horizontal)
     }
 }
 
-void NetList::propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y)
+void NetList::propagate_pad(NetPart &part, double curr_x, double curr_y, double &x, double &y)
 {
     if(curr_x < part.x_min)
     {
@@ -167,6 +168,35 @@ void NetList::propagate_gate(NetPart &part, double curr_x, double curr_y, double
     }
 }
 
+void NetList::propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y)
+{
+    if(curr_x < part.x_min)
+    {
+        x = part.x_min;
+    }
+    else if(curr_x > part.x_max) 
+    {
+        x = part.x_max;
+    }
+    else
+    {
+        x = part.horizontal ? part.x_max : curr_x;
+    }
+    
+    if(curr_y < part.y_min)
+    {
+        y = part.y_min;
+    }
+    else if(curr_y > part.y_max) 
+    {
+        y = part.y_max;
+    }
+    else
+    {
+        y = !part.horizontal ? part.y_max : curr_y;
+    }
+}
+
 void NetList::quadratic_placement_iter(NetPart &part)
 {
     std::vector<int> R, C;
@@ -185,6 +215,7 @@ void NetList::quadratic_placement_iter(NetPart &part)
     
     double prop_x, prop_y;
     double a_weight;
+    double weight;
     double pads_x;
     double pads_y;
     
@@ -201,27 +232,28 @@ void NetList::quadratic_placement_iter(NetPart &part)
         { 
             so_neighbor = gates_map[*it];
             n_idx = so_neighbor->idx;
+            weight = edge_weight * (*weight_it);
             
             if(n_idx < part.s_idx || n_idx >= part.e_idx)
             {
                 propagate_gate(part, so_neighbor->x, so_neighbor->y, prop_x, prop_y);
-                pads_x += (*weight_it)*prop_x;  
-                pads_y += (*weight_it)*prop_y;
+                pads_x += weight*prop_x;  
+                pads_y += weight*prop_y;
             }
             else
             {
                 R.push_back(idx - part.s_idx);
                 C.push_back(n_idx - part.s_idx);
-                V.push_back(-(*weight_it));
+                V.push_back(-weight);
                 ++nnz; 
             }    
             
-            a_weight += *weight_it;
+            a_weight += weight;
         }
         
         for(it = so->conn_pads.begin() ; it != so->conn_pads.end(); ++it)
         { 
-            propagate_gate(part, pinX[*it], pinY[*it], prop_x, prop_y);
+            propagate_pad(part, pinX[*it], pinY[*it], prop_x, prop_y);
             pads_x += prop_x;  
             pads_y += prop_y;
             
@@ -314,7 +346,7 @@ void NetList::quadratic_placement(int depth)
         ++curr_depth;
     }
     
-    std::ofstream g("test.out");
+    std::ofstream g("qp.out");
     if (g.is_open())
     {
         SPGate so;

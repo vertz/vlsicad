@@ -9,7 +9,7 @@ class Gate
 {
 public:
     int gateID;
-    int idx;
+    unsigned idx;
     double x, y;
     
     std::vector<int> gates_weight;

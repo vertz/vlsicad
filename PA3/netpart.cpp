@@ -15,7 +15,10 @@ void NetPart::split_idx(NetPart &pa, NetPart &pb)
 void NetPart::split_horizontal(NetPart &pa, NetPart &pb)
 {
     split_idx(pa, pb);
-
+    
+    pa.horizontal = true;
+    pb.horizontal = true;
+    
     double sz      = (x_max - x_min) / 2.0;
     double mid_val = x_min + sz;
     
@@ -33,6 +36,9 @@ void NetPart::split_horizontal(NetPart &pa, NetPart &pb)
 void NetPart::split_vertical(NetPart &pa, NetPart &pb)
 {
     split_idx(pa, pb);
+    
+    pa.horizontal = false;
+    pb.horizontal = false;
     
     double sz      = (y_max - y_min) / 2.0;
     double mid_val = y_min + sz;

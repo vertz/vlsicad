@@ -9,6 +9,8 @@ void Gate::init_gate()
     int weight;
     
     unique_end = std::unique(conn_gates.begin(), conn_gates.end());
+    std::sort(conn_gates.begin(), unique_end);
+    
     for(it_unique = conn_gates.begin() ; it_unique != unique_end; ++it_unique)
     {
         weight = 1;
@@ -21,8 +23,7 @@ void Gate::init_gate()
         gates_weight.push_back(weight);
     }
     
-    it = std::unique(conn_gates.begin(), conn_gates.end());
-    conn_gates.resize(std::distance(conn_gates.begin(), it));
+    conn_gates.resize(std::distance(conn_gates.begin(), unique_end));
 }
 
 bool comareTo_horizontal(SPGate lhs, SPGate rhs)

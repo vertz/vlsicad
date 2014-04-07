@@ -30,6 +30,8 @@ private:
     void sort_gates(NetPart &part, bool horizontal);
     
     void propagate_gate(NetPart &part, double curr_x, double curr_y, double &x, double &y); 
+    void propagate_pad(NetPart &part, double curr_x, double curr_y, double &x, double &y);
+    
     void quadratic_placement_iter(NetPart &part);
     
 public:
